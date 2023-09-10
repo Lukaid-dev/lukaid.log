@@ -7,6 +7,7 @@
     "lukaid",
     "malloc",
     "realloc",
+    "templating",
     "threadpool",
     "tizen",
     "velog"
