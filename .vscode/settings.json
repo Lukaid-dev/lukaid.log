@@ -8,6 +8,7 @@
     "libuv",
     "lukaid",
     "malloc",
+    "poiemaweb",
     "realloc",
     "templating",
     "threadpool",
