@@ -84,9 +84,41 @@ state는 완전히 격리되어있고 프라이빗하다. 컴포넌트 인스턴
 
 <br>
 
-## State as a Snapshot(https://react-ko.dev/learn/state-as-a-snapshot)
+## [State as a Snapshot](https://react-ko.dev/learn/state-as-a-snapshot)
 
-state 변수는 읽고 쓸 수 있는 일반 JavaScript 변수처럼 보일 수 있습니다. 하지만 state는 스냅샷처럼 동작합니다. state 변수를 설정해도 이미 가지고 있는 state 변수는 변경되지 않고, 대신 리렌더링이 실행됩니다.
+<br>
+
+state는 **스냅샷**처럼 동작한다. 스냅샷은, **어떤 순간의 변경되지 않는 정보**를 의미한다. state 변수를 다시 설정해도 이미 가지고 있는 state 변수는 변경되지 않고, 대신 **리렌더링**이 실행된다. state가 변하면 들고있는 스냅샷을 버리고, 새로운 스냅샷을 만든다.
+
+<br>
+
+우리가 어떤 상황을 사진으로 찍고(스냅샷), 그 상황이 변한다 해서 사진 속의 장면이 변하지는 않는다. 사진 속의 장면에 변화를 주는 유일한 방법은, 상황이 변화했을 때 사진을 다시 찍는 것이다. 이것이 바로 리액트의 state가 동작하는 방식이다.
+
+<br>
+
+### [Setting state triggers renders and Rendering takes a snapshot in time](https://react-ko.dev/learn/state-as-a-snapshot#setting-state-triggers-renders)
+
+<br>
+
+state를 설정하면 (set function을 호출하면) 렌더링이 촉발되고, 렌더링은 그 시점의 스냅샷을 기록한다. **렌더링**이란, React가 컴포넌트, 즉,함수를 호출한다는 뜻이다. 반환되는 JSX는 스냅샷을 참고한다. prop, 이벤트 핸들러, 로컬 변수는 모두 렌더링 당시의 state를 사용해 계산된다.
+
+<br>
+
+React가 컴포넌트를 리렌더링할 때의 과정은 다음과 같다.
+
+1. React가 함수를 다시 호출한다.
+2. 함수가 새로운 JSX 스냅샷을 반환한다.
+3. React가 반환한 스냅샷과 일치하도록 화면을 업데이트한다.
+
+<br>
+
+우리가 일반적인 함수를 호출하고 함수가 값을 반환하면, 함수 내부에서 사용되었던 지역변수는 사라진다. 하지만 state는 조금 다르게 동작한다. state는 실제로 함수 외부의 메모리에 존재하며, React 자체에 “존재”한다. 하지만 마치 그 컴포넌트에 국한된 지역변수 처럼 보인다. React가 컴포넌트를 호출하면 특정 렌더링에 대한 state의 스냅샷을 제공하고, 컴포넌트는 해당 렌더링의 state 값을 사용해 계산된 새로운 props 세트와 이벤트 핸들러가 포함된 UI의 스냅샷을 JSX에 반환한다!
+
+<br>
+
+state는 함수(컴포넌트)밖의 메모리에 존재하지만, 마치 함수 안의 지역변수 처럼 보이기도 하며, 실제로 해당 함수에만 국한되어서 사용된다!
+
+<br>
 
 ```jsx
 import { useState } from "react";
@@ -111,4 +143,268 @@ export default function Counter() {
 }
 ```
 
-왜 number는 3이 아니라 1이 될까? setNumber는 동기적으로 동작하지만, number는 스냅샷이기 때문에 number자체가 업데이트 되지 않고, 바뀐 값을 새로운 값으로 반환됩니다.
+<br>
+
+위의 컴포넌트는 이벤트 핸들러를 가지고 있는 버튼을 반환하고 버튼을 눌렀을 때 마치 number가 3이 될 것 같지만 실제로는 1이 된다. state는 **스냅샷**처럼 동작한다!! 그러니까 setNumber함수를 불러서 number를 1씩 증가시키는 것 처럼 보여도, 실제로 number의 값은 절대 변하지 않는다. 각 setNumber 함수마다 setNumber에 1이 더해진 새로운 스냅샷(state)를 반환 할 뿐이다. 그래서 number는 1이 된다.
+
+<br>
+
+위의 코드를 알기쉽게 바꿔보면 마치 아래와 같이 동작한다.
+
+<br>
+
+```jsx
+<button
+  onClick={() => {
+    setNumber(0 + 1);
+    setNumber(0 + 1);
+    setNumber(0 + 1);
+  }}
+>
+  +3
+</button>
+```
+
+<br>
+
+그럼 아래의 코드는 어떤 alert를 띄울까?
+
+<br>
+
+```jsx
+<button
+  onClick={() => {
+    setNumber(number + 1);
+    setTimeout(() => {
+      alert(number);
+    }, 3000);
+  }}
+>
+  +3
+</button>
+```
+
+<br>
+
+당연히 0이 뜬다! 동기, 비동기의 문제가 아니라, number는 절대 변하지 않는다! (리렌더가 되지 않는 이상 ㅎㅎ, 하지만 리렌더가 완료되면 number의 값은 바뀌겠지!)
+
+<br>
+
+## [Queueing a Series of State Updates](https://react-ko.dev/learn/queueing-a-series-of-state-updates)
+
+<br>
+
+React에는 rendering queue가 있다고 함... state를 변경하면 다음 렌더링이 이 렌더링 queue에 들어간다고 한다.
+
+<br>
+
+### [React batches state updates | state 업데이트 일괄처리](https://react-ko.dev/learn/queueing-a-series-of-state-updates)
+
+<br>
+
+위에서 본 예제를 다시 보고 이해해보자. React는 state 업데이트를 하기 전에 이벤트 핸들러의 모든 코드가 실행될 때까지 기다린다. 따라서, 리렌더링은 모든 setNumber() 호출이 완료된 이후에만 일어난다. 이렇게 하면 너무 많은 리렌더링을 촉발하지 않고도 여러 컴포넌트에서 나온 다수의 state 변수를 업데이트할 수 있다.
+
+<br>
+
+### [Updating the same state multiple times before the next render 다음 렌더링 전에 동일한 state 변수를 여러 번 업데이트하기](https://react-ko.dev/learn/queueing-a-series-of-state-updates#updating-the-same-state-multiple-times-before-the-next-render)
+
+<br>
+
+잘 쓰이지는 않지만, 한번의 렌더링에서 state를 여러번 업데이트하고 싶다면, 함수를 인자로 받는 setNumber를 사용하면 된다. `setNumber(number + 1)` 대신에, `setNumber((number) => number + 1)`를 사용해보자. set function에서 인자에 함수를 전달한다면, 그 함수의 인자는 prevState가 들어오고 반환은 새로운 state를 반환한다. `setFunction(prevState => newState)` 이렇게 사용하면 된다. setFunction 안의 함수를 업데이터 함수(updater function)라고 부른다. 업데이터 함수는 렌더링 중에 실행되므로, 업데이터 함수는 순수해야 하며 결과만 반환해야한다.
+
+<br>
+
+### [Naming conventions](https://react-ko.dev/learn/queueing-a-series-of-state-updates#naming-conventions)
+
+<br>
+
+업데이터 함수 인수의 이름은 해당 state 변수의 첫 글자로 지정하는 것이 일반적이다.
+
+<br>
+
+```jsx
+setEnabled((e) => !e);
+setLastName((ln) => ln.reverse());
+setFriendCount((fc) => fc * 2);
+```
+
+<br>
+
+## [Updating Objects in State](https://react-ko.dev/learn/updating-objects-in-state)
+
+<br>
+
+state에는 객체를 포함해서 어쩐 종류의 JavaScript 자료형이든 저장할 수 있다. 하지만 state의 객체를 직접 변경해서는 안된다. 대신, 객체의 복사본을 만들고, 그 복사본을 업데이트한 다음, 그 복사본을 state에 설정해야한다. 슬슬 감이 올텐데 **불변성**에 관한 이야기다.
+
+<br>
+
+### [What’s a mutation?](https://react-ko.dev/learn/updating-objects-in-state#whats-a-mutation)
+
+<br>
+
+mutation이라는 무서운 단어를 쓰면서 강조하고 싶은 내용이 있나보다. mutation은 객체의 속성을 변경하는 것을 의미한다. 원시 타입의 값을 바꾸는 것은 재할당이라고 부른다. React state의 객체는 기술적으로는 변이할 수 있지만, 숫자, 불리언(boolean), 문자열과 같이 불변하는 것처럼 취급해야 한다. **객체를 직접 변이하는 대신, 항상 교체해야 한다**. 간단히 정리하자면 다음과 같다.
+
+<br>
+
+> 원시형(string, number, boolean, null, undefined, Symbol) -> immutable -> mutation 불가능
+> 객체형(object, array, function) -> mutable -> mutation 가능
+
+<br>
+
+다시 말해 state에 넣는 모든 JavaScript 객체를 읽기 전용으로 취급해야한다. 뭔가 바꾸고 싶다면, 새로 만들어라! 그래야 React가 렌더링을 촉발할 수 있다.
+
+<br>
+
+### [Copying objects with the spread syntax](https://react-ko.dev/learn/updating-objects-in-state#copying-objects-with-the-spread-syntax)
+
+<br>
+
+객체의 특정 값만 바꾸고 싶을 때 꿀팁 -> spread 연산자
+
+<br>
+
+```jsx
+const [user, setUser] = useState({
+  name: "Mark",
+  age: 33,
+  email: ",
+});
+
+setUser({ ...user, age: 34 });
+```
+
+<br>
+
+<details>
+<summary>극한으로 깍기</summary>
+<div>
+
+```jsx
+export default function Form() {
+  const [person, setPerson] = useState({
+    firstName: "lukaid",
+    lastName: "lee",
+    email: "crescent3859@gmail.com",
+  });
+
+  // closure
+  const handleChange = (target) => (e) =>
+    setPerson({ ...person, [target]: e.target.value });
+
+  return (
+    <>
+      <input
+        type="text"
+        value={person.firstName}
+        onChange={handleChange("firstName")}
+      />
+      <input
+        type="text"
+        value={person.lastName}
+        onChange={handleChange("lastName")}
+      />
+      <input
+        type="text"
+        value={person.email}
+        onChange={handleChange("email")}
+      />
+    </>
+  );
+}
+```
+
+<br>
+
+```jsx
+const handleChange = (target) => (e) =>
+  setPerson({ ...person, [target]: e.target.value });
+```
+
+위의 함수는 아래와 같다.
+
+```jsx
+function handleChange(target) {
+  return function (e) {
+    return setPerson({ ...person, [target]: e.target.value });
+  };
+}
+```
+
+</div>
+</details>
+
+<br>
+
+### [Updating a nested object | 중첩된 객체 업데이트하기](https://react-ko.dev/learn/updating-objects-in-state#updating-a-nested-object)
+
+<br>
+
+냅다 펼치기!! (이게 불편하면 [Immer.js](https://contents.kyobobook.co.kr/sih/fit-in/280x0/pdt/9791158394646.jpg)를 사용하자)
+
+<br>
+
+```jsx
+const [user, setUser] = useState({
+  name: "Mark",
+  age: 33,
+  email: "test@test.com",
+  address: {
+    city: "Seoul",
+    country: "Korea",
+  },
+});
+
+setUser({
+  ...user,
+  address: {
+    ...user.address,
+    city: "Busan",
+  },
+});
+```
+
+<br>
+
+## [Updating Arrays in State](https://react-ko.dev/learn/updating-arrays-in-state)
+
+<br>
+
+배열도 마찬가지다! state에 저장된 배열을 업데이트하려면, 새로운 배열을 만들고(또는 기존 배열을 복사본을 만듦) 새 배열을 사용하도록 state를 설정해야한다.
+
+<br>
+
+<table><thead><tr><th align="left"></th><th align="left">avoid (mutates the array)<br><span class="translate">비추천 (배열 직접 변이)</span></th><th align="left">prefer (returns a new array)<br><span class="translate">추천 (새 배열 반환)</span></th></tr></thead><tbody><tr><td align="left">adding <br><span class="translate">추가</span></td><td align="left"><code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">push</code>, <code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">unshift</code></td><td align="left"><code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">concat</code>, <code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">[...arr]</code> spread syntax </td></tr><tr><td align="left">removing <br><span class="translate">삭제</span></td><td align="left"><code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">pop</code>, <code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">shift</code>, <code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">splice</code></td><td align="left"><code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">filter</code>, <code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">slice</code></td></tr><tr><td align="left">replacing <br><span class="translate">교체</span></td><td align="left"><code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">splice</code>, <code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">arr[i] = ...</code> assignment</td><td align="left"><code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">map</code></td></tr><tr><td align="left">sorting <br><span class="translate">정렬</span></td><td align="left"><code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">reverse</code>, <code class="inline text-code text-secondary dark:text-secondary-dark px-1 rounded-md no-underline bg-gray-30 bg-opacity-10 py-px">sort</code></td><td align="left">copy the array first<br><span class="translate">배열을 복사한 다음 처리</span></td></tr></tbody></table>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>

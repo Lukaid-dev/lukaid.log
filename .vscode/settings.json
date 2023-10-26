@@ -1,10 +1,13 @@
 {
   "cSpell.words": [
     "boostcamp",
+    "Busan",
     "calloc",
     "callstack",
+    "concat",
     "CSSOM",
     "Fastcampus",
+    "Immer",
     "libuv",
     "lukaid",
     "malloc",
@@ -13,6 +16,7 @@
     "templating",
     "threadpool",
     "tizen",
+    "unshift",
     "velog"
   ]
 }
