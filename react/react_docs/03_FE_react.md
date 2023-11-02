@@ -27,7 +27,7 @@ React에서는 컴포넌트별 메모리를 state라고 부른다. (In React, th
 
 <br>
 
-리액트에서 가장 유명한 훅 `useState`가 제공하는 다음의 두 가지 기능을 사용하여 이 작업을 수행합니다.
+리액트에서 가장 유명한 훅 `useState`가 제공하는 다음의 두 가지 기능을 사용하여 이 작업을 수행한다.
 
 1. 렌더링 사이에 데이터를 유지하기 위한 state 변수.
 2. 변수를 업데이트하고 React가 컴포넌트를 다시 렌더링하도록 촉발하는 state 설정자 함수.
@@ -40,7 +40,7 @@ const [index, setIndex] = useState(0);
 
 <br>
 
-### [Meet your first Hook](https://react-ko.dev/learn/state-a-components-memory#meet-your-first-hook)
+### [Meet your first Hook - useState](https://react-ko.dev/learn/state-a-components-memory#meet-your-first-hook)
 
 <br>
 
@@ -377,34 +377,14 @@ setUser({
 
 <br>
 
-<br>
+## 감상
 
 <br>
 
-<br>
+이번 장은 state에 대해 더 깊게 이해 할 수 있었다.
 
-<br>
+1. state는 컴포넌트의 메모리라는 것을 알게 되었고
+2. state는 스냅샷처럼 동작한다는 것을 알게 되었다.
+3. state를 업데이트 할 때는 불변성을 지켜야한다는 것을 알게 되었고, 불변성을 지키기 위해서는 객체나 배열을 업데이트 할 때는 새로운 객체나 배열을 만들어서 업데이트 해야한다는 것을 알게 되었다.
 
-<br>
-
-<br>
-
-<br>
-
-<br>
-
-<br>
-
-<br>
-
-<br>
-
-<br>
-
-<br>
-
-<br>
-
-<br>
-
-<br>
+새롭게 리뉴얼 된 공식문서에서 이렇게 자세한 내용까지 다뤄주고 있어서 아주 좋다. 다음장으로 넘어가서 state에 대해 더 자세히 학습해보자.
