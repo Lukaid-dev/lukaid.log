@@ -13,6 +13,7 @@
     "malloc",
     "poiemaweb",
     "realloc",
+    "SSOT",
     "templating",
     "threadpool",
     "tizen",
