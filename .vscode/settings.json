@@ -8,6 +8,7 @@
     "CSSOM",
     "Fastcampus",
     "Immer",
+    "leetrooms",
     "libuv",
     "lukaid",
     "malloc",
@@ -18,6 +19,7 @@
     "threadpool",
     "tizen",
     "unshift",
-    "velog"
+    "velog",
+    "zustand"
   ]
 }
