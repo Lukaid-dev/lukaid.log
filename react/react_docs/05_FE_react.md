@@ -174,15 +174,15 @@ context는 다음의 세 단계로 진행한다.
 
 **1. Create** a context.
 
-- context를 생성합니다.
+- context를 생성한다.
 
 **2. Use** that context from the component that needs the data.
 
-- 데이터가 필요한 컴포넌트에서 해당 context를 사용합니다.
+- 데이터가 필요한 컴포넌트에서 해당 context를 사용한다.
 
 **3. Provide** that context from the component that specifies the data.
 
-- 데이터를 지정하는 컴포넌트에서 해당 context를 제공합니다.
+- 데이터를 지정하는 컴포넌트에서 해당 context를 제공한다.
 
 <br>
 
